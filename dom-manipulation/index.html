@@ -5,82 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dynamic Quote Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
-
+    body { font-family: Arial, sans-serif; background: #f8f9fa; text-align: center; padding: 20px; }
     h1 { color: #333; }
-
-    #quoteDisplay {
-      margin: 20px auto;
-      padding: 20px;
-      width: 70%;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      font-size: 1.2em;
-    }
-
+    #quoteDisplay { margin: 20px auto; padding: 20px; width: 70%; background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 1.2em; }
     .controls { margin: 10px 0; }
-
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+    button { margin: 10px; padding: 10px 20px; border: none; background-color: #007BFF; color: white; border-radius: 8px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
-
-    input, select {
-      padding: 8px;
-      margin: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    #formContainer { margin-top: 25px; }
-
-    #importLabel {
-      display: inline-block;
-      margin-left: 10px;
-      cursor: pointer;
-      background: #28a745;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-    }
-
+    input, select { padding: 8px; margin: 5px; border-radius: 6px; border: 1px solid #ccc; }
+    #importLabel { display: inline-block; margin-left: 10px; cursor: pointer; background: #28a745; color: white; padding: 8px 12px; border-radius: 6px; }
     #importFile { display: none; }
   </style>
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
+  <!-- Category Filter -->
   <div class="controls">
-    <label for="categorySelect">Choose category:</label>
-    <select id="categorySelect"></select>
+    <label for="categoryFilter">Filter by category:</label>
+    <select id="categoryFilter" onchange="filterQuotes()">
+      <option value="all">All Categories</option>
+    </select>
   </div>
 
+  <!-- Quote Display -->
   <div id="quoteDisplay">Click “Show New Quote” to see a random quote.</div>
 
+  <!-- Buttons -->
   <div class="controls">
     <button id="newQuote">Show New Quote</button>
     <button id="exportBtn">Export Quotes (JSON)</button>
 
-    <!-- import file input (hidden) with a visible label to style -->
+    <!-- Import JSON -->
     <input type="file" id="importFile" accept=".json" />
     <label for="importFile" id="importLabel">Import Quotes (JSON)</label>
   </div>
 
-  <!-- dynamic add-quote form will be inserted by script.js -->
-  <div id="dynamicArea"></div>
+  <!-- Add New Quote Form -->
+  <div id="addQuoteForm">
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button onclick="addQuote()">Add Quote</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
