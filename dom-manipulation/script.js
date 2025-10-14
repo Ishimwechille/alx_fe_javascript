@@ -116,13 +116,31 @@ importFile.addEventListener('change', event => {
       localStorage.setItem('quotes', JSON.stringify(quotes));
       populateCategories();
       showRandomQuote();
-      alert("Quotes imported successfully!");
+      notify("Quotes imported successfully!");
     } catch (err) {
       alert("Failed to import quotes: " + err.message);
     }
   };
   fileReader.readAsText(event.target.files[0]);
 });
+
+// --------------------
+// Notification helper
+// --------------------
+function notify(message) {
+  const notif = document.createElement('div');
+  notif.textContent = message;
+  notif.style.position = 'fixed';
+  notif.style.bottom = '10px';
+  notif.style.right = '10px';
+  notif.style.background = '#28a745';
+  notif.style.color = 'white';
+  notif.style.padding = '10px';
+  notif.style.borderRadius = '5px';
+  notif.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
+}
 
 // --------------------
 // Simulate server sync
@@ -145,6 +163,7 @@ async function syncQuotesWithServer() {
   let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
   serverQuotes.forEach(sq => {
+    if (!sq.text || !sq.category) return; // Validate server data
     const index = localQuotes.findIndex(lq => lq.text === sq.text);
     if (index >= 0) {
       // Conflict: server wins
@@ -158,12 +177,10 @@ async function syncQuotesWithServer() {
   quotes = localQuotes;
   populateCategories();
   showRandomQuote();
-  alert("Quotes synced with server!");
+  notify("Quotes synced with server!");
 }
 
-// --------------------
-// Optional: automatic sync every 60s
-// --------------------
+// Automatic sync every 60s
 setInterval(syncQuotesWithServer, 60000);
 
 // --------------------
