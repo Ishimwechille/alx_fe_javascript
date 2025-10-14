@@ -22,7 +22,7 @@
   <!-- Category Filter -->
   <div class="controls">
     <label for="categoryFilter">Filter by category:</label>
-    <select id="categoryFilter" onchange="filterQuotes()">
+    <select id="categoryFilter">
       <option value="all">All Categories</option>
     </select>
   </div>
@@ -44,9 +44,14 @@
   <div id="addQuoteForm">
     <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
     <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button onclick="addQuote()">Add Quote</button>
+    <button id="addQuoteBtn">Add Quote</button>
   </div>
 
   <script src="script.js"></script>
+  <script>
+    // Attach event listeners via JS instead of inline attributes
+    document.getElementById('categoryFilter').addEventListener('change', filterQuotes);
+    document.getElementById('addQuoteBtn').addEventListener('click', addQuote);
+  </script>
 </body>
 </html>
