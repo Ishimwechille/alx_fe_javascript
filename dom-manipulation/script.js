@@ -41,7 +41,7 @@ function showRandomQuote() {
 // Populate categories dynamically
 // --------------------
 function populateCategories() {
-  const categories = [...new Set(quotes.map(q => q.category))]; // unique categories
+  const categories = [...new Set(quotes.map(q => q.category))];
   categoryFilter.innerHTML = '<option value="all">All Categories</option>';
   categories.forEach(cat => {
     const option = document.createElement('option');
@@ -50,7 +50,6 @@ function populateCategories() {
     categoryFilter.appendChild(option);
   });
 
-  // Restore last selected filter
   const lastCategory = localStorage.getItem('lastCategory') || 'all';
   categoryFilter.value = lastCategory;
 }
@@ -61,6 +60,24 @@ function populateCategories() {
 function filterQuotes() {
   localStorage.setItem('lastCategory', categoryFilter.value);
   showRandomQuote();
+}
+
+// --------------------
+// Notification helper
+// --------------------
+function notify(message) {
+  const notif = document.createElement('div');
+  notif.textContent = message;
+  notif.style.position = 'fixed';
+  notif.style.bottom = '10px';
+  notif.style.right = '10px';
+  notif.style.background = '#28a745';
+  notif.style.color = 'white';
+  notif.style.padding = '10px';
+  notif.style.borderRadius = '5px';
+  notif.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
 }
 
 // --------------------
@@ -82,6 +99,7 @@ function addQuote() {
 
   quotes.push(newQuote);
   localStorage.setItem('quotes', JSON.stringify(quotes));
+  postQuoteToServer(newQuote); // send to mock server
 
   populateCategories();
   showRandomQuote();
@@ -125,49 +143,46 @@ importFile.addEventListener('change', event => {
 });
 
 // --------------------
-// Notification helper
-// --------------------
-function notify(message) {
-  const notif = document.createElement('div');
-  notif.textContent = message;
-  notif.style.position = 'fixed';
-  notif.style.bottom = '10px';
-  notif.style.right = '10px';
-  notif.style.background = '#28a745';
-  notif.style.color = 'white';
-  notif.style.padding = '10px';
-  notif.style.borderRadius = '5px';
-  notif.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-  document.body.appendChild(notif);
-  setTimeout(() => notif.remove(), 3000);
-}
-
-// --------------------
 // Simulate server sync
 // --------------------
-const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts?_limit=5'; // mock server
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts?_limit=5';
 
-async function fetchServerQuotes() {
+// Fetch quotes from server
+async function fetchQuotesFromServer() {
   try {
     const response = await fetch(SERVER_URL);
     const serverQuotes = await response.json();
     return serverQuotes.map(q => ({ text: q.title, category: q.body }));
-  } catch (error) {
-    console.error('Failed to fetch server quotes:', error);
+  } catch (err) {
+    console.error('Failed to fetch server quotes:', err);
     return [];
   }
 }
 
+// Post a new quote to the server
+async function postQuoteToServer(quote) {
+  try {
+    await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify(quote),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    notify("Quote posted to server!");
+  } catch (err) {
+    console.error("Failed to post quote:", err);
+  }
+}
+
+// Sync local quotes with server
 async function syncQuotesWithServer() {
-  const serverQuotes = await fetchServerQuotes();
+  const serverQuotes = await fetchQuotesFromServer();
   let localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
   serverQuotes.forEach(sq => {
-    if (!sq.text || !sq.category) return; // Validate server data
+    if (!sq.text || !sq.category) return;
     const index = localQuotes.findIndex(lq => lq.text === sq.text);
     if (index >= 0) {
-      // Conflict: server wins
-      localQuotes[index].category = sq.category;
+      localQuotes[index].category = sq.category; // conflict: server wins
     } else {
       localQuotes.push(sq);
     }
